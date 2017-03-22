@@ -1,7 +1,6 @@
 
 # kernelflow 
 
-Kernel density estimation and differentiable histogram and other summaries using tensorflow
-data flow graphs.
-
+Experimenting with kernel density estimation and soft histograms (as in
+differentiable sample statistical summaries) using tensorflow data flow graphs.
 
