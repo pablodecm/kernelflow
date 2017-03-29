@@ -26,13 +26,12 @@ class KernelDensity(distribution.Distribution):
       self._w_norm_lp = tf.reduce_logsumexp(self._w_lp,[0])
 
     super(KernelDensity, self).__init__(
-      dtype=self._kernel._sigma.dtype,
-      is_continuous=True,
-      is_reparameterized=True,
+      dtype=self._kernel._scale.dtype,
+      reparameterization_type=distribution.FULLY_REPARAMETERIZED,
       validate_args=validate_args,
       allow_nan_stats=allow_nan_stats,
       parameters=parameters,
-      graph_parents=[self._kernel._mu, self._kernel._sigma, self._w_lp],
+      graph_parents=[self._kernel._loc, self._kernel._scale, self._w_lp],
       name=name)
 
   def _log_prob(self, x):
@@ -51,4 +50,18 @@ class KernelDensity(distribution.Distribution):
 
   def _cdf(self, x):
     return tf.exp(self._log_cdf(x))
+
+  def log_prob_less(self, x):
+    return self._kernel._log_cdf(x)
+
+  def log_count_less(self, x): 
+    return tf.reduce_logsumexp(self.log_prob_less(x)
+                               +self._w_lp-self._w_norm_lp, [-1])
+
+  def log_prob_greater(self, x): 
+    return tf.log(1.-tf.exp(self._kernel._log_cdf(x)))
+
+  def log_count_greater(self, x):
+    return tf.reduce_logsumexp(self.log_prob_greater(x)
+                               +self._w_lp-self._w_norm_lp, [-1])
 
