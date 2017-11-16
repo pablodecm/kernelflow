@@ -4,8 +4,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from tensorflow.contrib.distributions.python.ops import distribution
-from tensorflow.contrib.distributions.python.ops import normal 
+from tensorflow.python.ops.distributions import distribution
+from tensorflow.python.ops.distributions import normal 
 from tensorflow.python.framework import ops
 import tensorflow as tf
 
@@ -26,13 +26,12 @@ class KernelDensity(distribution.Distribution):
       self._w_norm_lp = tf.reduce_logsumexp(self._w_lp,[0])
 
     super(KernelDensity, self).__init__(
-      dtype=self._kernel._sigma.dtype,
-      is_continuous=True,
-      is_reparameterized=True,
+      dtype=self._kernel._scale.dtype,
+      reparameterization_type=distribution.FULLY_REPARAMETERIZED,
       validate_args=validate_args,
       allow_nan_stats=allow_nan_stats,
       parameters=parameters,
-      graph_parents=[self._kernel._mu, self._kernel._sigma, self._w_lp],
+      graph_parents=[self._kernel._loc, self._kernel._scale, self._w_lp],
       name=name)
 
   def _log_prob(self, x):

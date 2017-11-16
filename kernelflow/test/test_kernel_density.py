@@ -1,6 +1,6 @@
 
 from kernelflow.kernel_density import KernelDensity
-from tensorflow.contrib.distributions.python.ops import normal
+from tensorflow.python.ops.distributions import normal
 import tensorflow as tf
 import numpy as np
 
@@ -15,7 +15,7 @@ def _test_one_kernel(loc, scale, weight=None, kernel_dist=normal.Normal):
     x = tf.constant(one_kernel.sample(10).eval())
     if weight is None:
         assert np.allclose(kde._w_lp.eval(), 0.)
-    assert np.allclose(one_kernel.log_pdf(x).eval(), kde.log_pdf(x).eval())
+    assert np.allclose(one_kernel.log_prob(x).eval(), kde.log_prob(x).eval())
     assert np.allclose(one_kernel.log_cdf(x).eval(), kde.log_cdf(x).eval())
 
 def _test_several_kernel(loc, scale, weight=None, kernel_dist=normal.Normal):
@@ -26,9 +26,9 @@ def _test_several_kernel(loc, scale, weight=None, kernel_dist=normal.Normal):
     x = tf.constant(one_kernel.sample(n_samples).eval())
     if weight is None:
         assert np.allclose(kde._w_lp.eval(), 0.)
-    assert kde.log_pdf(x).eval().shape == (n_samples, 1) 
+    assert kde.log_prob(x).eval().shape == (n_samples, 1) 
     assert kde.log_cdf(x).eval().shape == (n_samples, 1) 
-    assert np.greater_equal(kde.pdf(x).eval(), 0.0).all() 
+    assert np.greater_equal(kde.prob(x).eval(), 0.0).all() 
     assert np.greater_equal(kde.cdf(x).eval(), 0.0).all()
     assert np.less_equal(kde.cdf(x).eval(), 1.0).all()
 
@@ -51,6 +51,4 @@ class test_kernel_density(tf.test.TestCase):
         n_s = 10 
         _test_several_kernel(np.random.random(n_s),
                              np.array([0.01]), weight=np.random.random(n_s))
-
-
 
